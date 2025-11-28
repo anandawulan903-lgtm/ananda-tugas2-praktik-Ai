@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Slider Akhir - Biru Tua Konsisten</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Palet Warna Biru Tua */
+        :root {
+            --dark-blue: #1A237E; /* Biru Tua Utama (Indigo) */
+            --midnight-blue: #000033; /* Biru Malam (Hampir Hitam) */
+            --bright-accent: #448AFF; /* Biru Cerah Aksen/Glow */
+            --light-contrast: #BBDEFB; /* Biru Muda Kontras Tipis */
+            --text-color: #E3F2FD;
+        }
+
+        /* CSS LENGKAP */
+        body {
+            /* Latar Belakang Biru Tua Animasi */
+            background: radial-gradient(circle at var(--x) var(--y), var(--dark-blue) 0%, var(--midnight-blue) 60%); 
+            background-size: 200% 200%; 
+            animation: backgroundMovement 35s ease infinite alternate; 
+            color: var(--text-color); 
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'system-ui', 'Montserrat', sans-serif;
+            position: relative;
+            overflow: hidden; 
+            cursor: none; 
+        }
+
+        /* Keyframes untuk Animasi Background */
+        @keyframes backgroundMovement {
+            0% { background-position: 0% 0%; }
+            33% { background-position: 100% 0%; }
+            66% { background-position: 100% 100%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        /* Pointer Cahaya Biru */
+        .glow-pointer {
+            position: fixed;
+            width: 90px; 
+            height: 90px;
+            background: rgba(130, 177, 255, 0.4); 
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none; 
+            mix-blend-mode: screen; 
+            filter: blur(35px); 
+            opacity: 0; 
+            transition: opacity 0.5s ease-out; 
+            z-index: 1000; 
+        }
+        body:hover .glow-pointer {
+            opacity: 1; 
+        }
+
+
+        /* Header dan Label Pill */
+        .header-labels {
+            position: absolute;
+            top: 5vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            z-index: 10; 
+        }
+        .andev-web {
+            /* PERUBAHAN: Warna QUOTES menjadi Biru Tua */
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #448AFF77; 
+            color: var(--dark-blue); /* WARNA TEKS BIRU TUA */
+            background: linear-gradient(45deg, var(--bright-accent), var(--light-contrast));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(68, 138, 255, 0.7); /* Efek glow pada teks */
+        }
+        .tech-pills {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+        .pill {
+            padding: 8px 15px;
+            border: 2px solid var(--bright-accent); 
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--light-contrast); 
+            box-shadow: 0 0 8px rgba(68, 138, 255, 0.3); 
+        }
+
+        /* Container Slider Utama */
+        .slider-container {
+            position: relative;
+            width: 80vw; 
+            max-width: 900px;
+            height: 500px;
+            overflow: hidden;
+            /* PERUBAHAN: Border Gambar (sisi gambar) menjadi Biru Tua */
+            border: 15px solid var(--dark-blue); /* WARNA BORDER BIRU TUA */
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(68, 138, 255, 0.5); 
+            background-color: var(--midnight-blue); 
+            z-index: 8; 
+        }
+
+        /* ------------------------------------- */
+        /* CSS SLIDER TRANSITION */
+        /* ------------------------------------- */
+
+        .item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateX(100%);
+            z-index: 1; 
+        }
+        
+        .item.active { 
+            transform: translateX(0);
+            z-index: 5; 
+        }
+        
+        .item.prev { 
+            transform: translateX(-100%); 
+        }
+
+        /* PERULANGAN */
+        .item.active.prev-dir {
+            transition: none; 
+            transform: translateX(-100%); 
+        }
+        
+        .item.active.prev-dir {
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateX(0); 
+        }
+
+        /* Efek Gambar & Overlay */
+        .item.active img {
+            transform: scale(1.08); 
+        }
+
+        .item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%); 
+            z-index: 6; 
+        }
+
+        /* Styling Konten Teks */
+        .item .content {
+            position: absolute;
+            top: 50%;
+            left: 100px; 
+            width: 350px; 
+            color: var(--text-color); 
+            text-align: left;
+            transform: translate(-20px, -50%); 
+            font-family: system-ui;
+            display: block;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(68, 138, 255, 0.5); 
+            
+            opacity: 0;
+            transition: opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s; 
+        }
+
+        .item.active .content {
+            opacity: 1; 
+            transform: translate(0, -50%); 
+        }
+
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease-in-out; 
+        }
+
+        .country-name {
+            font-size: 2.8em; 
+            font-weight: 900;
+            margin: 0 0 15px 0;
+            color: var(--light-contrast); 
+        }
+        .description a {
+            color: #FFEB3B; 
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(255, 235, 59, 0.5); 
+        }
+        
+        /* Styling Navigasi */
+        .navigation button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            background: rgba(26, 35, 126, 0.8); 
+            color: var(--text-color); 
+            border: none;
+            padding: 12px 18px; 
+            cursor: pointer;
+            font-size: 1.8em; 
+            border-radius: 8px; 
+            transition: background-color 0.4s ease, transform 0.3s ease;
+            box-shadow: 0 0 15px rgba(68, 138, 255, 0.5);
+        }
+        .navigation button:hover {
+            background-color: rgba(26, 35, 126, 1);
+            transform: translateY(-50%) scale(1.1); 
+        }
+        .navigation .prev-btn { left: 30px; }
+        .navigation .next-btn { right: 30px; }
+        
+        /* Styling Dots Container */
+        .dots-container {
+            position: absolute;
+            bottom: 30px; 
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            display: flex;
+            gap: 12px; 
+        }
+        .dot {
+            width: 12px; 
+            height: 12px;
+            background-color: rgba(187, 222, 251, 0.6); 
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.4s, transform 0.4s, box-shadow 0.4s;
+        }
+        .dot.active-dot {
+            background-color: var(--bright-accent); 
+            transform: scale(1.4); 
+            box-shadow: 0 0 10px var(--bright-accent); 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-pointer"></div> 
+    <div class="header-labels">
+        <div class="andev-web">QUOTES</div> 
+        <div class="tech-pills">
+            <div class="pill">Html</div>
+            <div class="pill">Css</div>
+            <div class="pill">Js</div>
+        </div>
+    </div>
+
+    <div class="slider-container">
+        <div class="item active" data-index="0">
+            <div class="content">
+                <h2 class="country-name">Cahaya di Kegelapan</h2>
+                "Hanya sedikit orang yang rela menjadi gelap demi membawa cahaya"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="memberi tahu.jpg" alt="Pemandangan 1"> 
+        </div>
+
+        <div class="item" data-index="1">
+            <div class="content">
+                <h2 class="country-name">Keindahan Mawar</h2>
+                "Engkau bisa mengatakan bahwa mawar itu indah, karena engkau hanya fokus melihat bunganya bukan durinya"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="mawar.jpg" alt="Pemandangan 2">
+        </div>
+
+        <div class="item" data-index="2">
+            <div class="content">
+                <h2 class="country-name">Refleksi Diri</h2>
+                "bahkan di saat aku melihat cermin, aku tidak melihat diriku, melainkan orang asing yang berdiri di hadapanku"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="cermin.jpg" alt="Pemandangan 3">
+        </div>
+
+        <div class="item" data-index="3">
+            <div class="content">
+                <h2 class="country-name">Pembunuhan Tak Terlihat</h2>
+                "Bahkan didalam kesunyian pun ada pembunuhan yang tak terlihat, yaitu; Kebosanan, kesepian, dan kebingungan"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="kesepian.jpg" alt="Pemandangan 4">
+        </div>
+
+        <div class="item" data-index="4">
+            <div class="content">
+                <h2 class="country-name">Makna Indra</h2>
+                "Semesta telah memberikan kita kedua telinga, dua mata, tetapi dengan satu lidah. Artinya kita harus banyak mendengar dan melihat dari pada berbicara"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="mendengar.jpg" alt="Pemandangan 5">
+        </div>
+
+        <div class="item" data-index="5">
+            <div class="content">
+                <h2 class="country-name">Pentingnya Respons</h2>
+                "Bukan tentang apa yang terjadi padamu tetapi, tentang bagaimana kamu meresponsnya yang paling penting"
+                <p class="description"><a href="#">- Penulis Anonim</a></p>
+            </div>
+            <img src="respon.jpg" alt="Pemandangan 6">
+        </div>
+
+        <div class="navigation">
+            <button class="prev-btn"> &#60; </button>
+            <button class="next-btn"> &#62; </button>
+        </div>
+
+        <div class="dots-container">
+        </div> 
+    </div>
+
+    <script>
+        const items = document.querySelectorAll('.item');
+        const nextBtn = document.querySelector('.next-btn');
+        const prevBtn = document.querySelector('.prev-btn');
+        const dotsContainer = document.querySelector('.dots-container');
+        const glowPointer = document.querySelector('.glow-pointer');
+
+        let currentIndex = 0;
+        const totalItems = items.length;
+
+        // Fungsi JS tetap sama (karena hanya perubahan styling CSS)
+
+        function updateSlider(newIndex) {
+            let oldIndex = currentIndex;
+            let newIndexCalculated = newIndex;
+
+            if (newIndexCalculated >= totalItems) {
+                newIndexCalculated = 0; 
+            } else if (newIndexCalculated < 0) {
+                newIndexCalculated = totalItems - 1; 
+            }
+
+            const isNext = (newIndexCalculated > oldIndex) || (newIndexCalculated === 0 && oldIndex === totalItems - 1);
+            
+            items.forEach((item, index) => {
+                item.classList.remove('active', 'prev', 'next-dir', 'prev-dir');
+                item.style.transform = ''; 
+
+                if (index === newIndexCalculated) {
+                    item.classList.add('active');
+                    
+                    if (newIndexCalculated === totalItems - 1 && oldIndex === 0) {
+                        item.classList.add('prev-dir');
+                    }
+
+                } else if (index === oldIndex) {
+                    if (isNext || (oldIndex === totalItems - 1 && newIndexCalculated === 0)) {
+                        item.classList.add('prev');
+                    }
+                } else if (index < newIndexCalculated) {
+                    item.classList.add('prev');
+                }
+            });
+
+            currentIndex = newIndexCalculated;
+            updateDots();
+
+            if (items[currentIndex].classList.contains('prev-dir')) {
+                void items[currentIndex].offsetWidth; 
+            }
+        }
+
+        function createDots() {
+            for (let i = 0; i < totalItems; i++) {
+                const dot = document.createElement('span');
+                dot.classList.add('dot');
+                dot.dataset.index = i;
+                dot.addEventListener('click', () => {
+                    updateSlider(i);
+                });
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active-dot', index === currentIndex);
+            });
+        }
+
+        // --- EVENT LISTENER UNTUK POINTER CAHAYA ---
+        document.addEventListener('mousemove', (e) => {
+            glowPointer.style.left = `${e.clientX}px`;
+            glowPointer.style.top = `${e.clientY}px`;
+        });
+
+        // --- EVENT LISTENERS SLIDER ---
+        nextBtn.addEventListener('click', () => {
+            updateSlider(currentIndex + 1);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            updateSlider(currentIndex - 1);
+        });
+
+        // --- INISIALISASI ---
+        createDots();
+        updateSlider(0); 
+    </script>
+    
+</body>
+</html>
